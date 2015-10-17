@@ -1,0 +1,79 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".CanvasCaptureActivity"
+    android:background="@drawable/black_grey_gradient"
+    android:orientation="vertical">
+
+    <LinearLayout android:layout_height="match_parent"
+    android:layout_width="match_parent"
+        android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/previousImageTextView"
+        android:layout_weight="2.75"
+        android:text="@string/previousCanvasText"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:textSize="20sp" />
+
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/previousImageThumbnail"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/buttonsRelative"
+        android:layout_weight="3">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonsLinear"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/blankCanvasBtn"
+                android:text="@string/blankCanvasBtnText"
+                android:layout_weight="1"
+                android:background="@color/red"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="10dp"
+                android:onClick="blankCanvasClicked"/>
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/existingImageBtn"
+                android:text="@string/existingImageBtnText"
+                android:layout_weight="1"
+                android:background="@color/red"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:onClick="existingImageClicked"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>
+</FrameLayout>

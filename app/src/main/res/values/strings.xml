@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Drawing</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="blankCanvasBtnText">Blank Canvas</string>
+    <string name="existingImageBtnText">Existing Image</string>
+    <string name="previousCanvasText">Previous Canvas</string>
+</resources>
