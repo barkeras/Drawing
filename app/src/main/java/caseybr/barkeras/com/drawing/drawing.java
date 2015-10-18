@@ -3,12 +3,14 @@ package caseybr.barkeras.com.drawing;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -16,11 +18,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Andrew on 10/16/2015.
@@ -33,19 +40,20 @@ public class drawing extends Activity {
     int[] selectedColorRGB = new int[4];
     Color brushBoxColor = new Color();
     int opacitySeekValue;
+    File imageFile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawing_canvas);
         Bundle canvasInfo = getIntent().getExtras();
-        ImageView canvasImage = (ImageView)findViewById(R.id.canvasImage);
         int userRC = canvasInfo.getInt("requestCode");
         Bitmap canvasBM;
         Button brushBtn = (Button)findViewById(R.id.brushBtn);
         Button shareBtn = (Button)findViewById(R.id.shareImageBtn);
         Button saveBtn = (Button)findViewById(R.id.saveImageBtn);
-
+        ImageView canvasImage = (ImageView)findViewById(R.id.canvasImage);
         Typeface fontFamily = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
         brushBtn.setTypeface(fontFamily);
         shareBtn.setTypeface(fontFamily);
@@ -111,6 +119,7 @@ public class drawing extends Activity {
         final View brushColorView = (View)promptView.findViewById(R.id.promptBrushColorBox);
         final SeekBar opacitySeek = (SeekBar)promptView.findViewById(R.id.opacitySeekBar);
         final TextView opacityTextView = (TextView)promptView.findViewById(R.id.opacityValueTV);
+        final Button brushBtn = (Button)findViewById(R.id.brushBtn);
 
         selectedColorRGB[0] = defaultR;
         selectedColorRGB[1] = defaultG;
@@ -150,7 +159,7 @@ public class drawing extends Activity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 opacitySeekValue = progress;
                 opacityTextView.setText(opacityPercent(opacitySeekValue));
-                selectedColorRGB[3] = brushBoxColor.argb(opacitySeekValue,selectedColorRGB[0],selectedColorRGB[1],selectedColorRGB[2]);
+                selectedColorRGB[3] = brushBoxColor.argb(opacitySeekValue, selectedColorRGB[0], selectedColorRGB[1], selectedColorRGB[2]);
                 brushColorView.setBackgroundColor(selectedColorRGB[3]);
             }
 
@@ -221,6 +230,7 @@ public class drawing extends Activity {
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // get user input and set it to result
+                        brushBtn.setTextColor(selectedColorRGB[3]);
 
 
                     }
@@ -241,19 +251,56 @@ public class drawing extends Activity {
     }
 
     public void saveImageClicked(View view) {
+        saveImage();
+
     }
 
     public void shareImageClicked(View view) {
+        saveImage();
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/*");
+        share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + imageFile));
+
+        startActivity(Intent.createChooser(share,"Share Photo"));
     }
 
 
     public String opacityPercent(int opacitySeekInput){
         float opacityFloat = opacitySeekInput;
-        float percentInt = (float)(opacityFloat/255)*100;
+        float percentInt = (opacityFloat/255)*100;
         String percentValue = String.format("%3.0f",percentInt);
         percentValue = percentValue + "%";
 
         return percentValue;
+    }
+
+    private String createImageName() {
+        //file name is the (name of this app + the date + time) the image was taken
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String timeStamp = sdf.format(new Date());
+        return "/Drawing" + timeStamp + ".jpg";
+    }
+
+    public void saveImage(){
+        ImageView canvas = (ImageView)findViewById(R.id.canvasImage);
+        canvas.setDrawingCacheEnabled(true);
+        Bitmap canvasBM = canvas.getDrawingCache();
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        imageFile = new File(root + "/Pictures" + createImageName());
+
+        try {
+            FileOutputStream out = new FileOutputStream(imageFile);
+            canvasBM.compress(Bitmap.CompressFormat.JPEG,90,out);
+            out.flush();
+            out.close();
+            Toast.makeText(drawing.this, "Saved photo to: " + imageFile.toString(), Toast.LENGTH_SHORT).show();
+        }
+        catch (java.io.IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
 }
