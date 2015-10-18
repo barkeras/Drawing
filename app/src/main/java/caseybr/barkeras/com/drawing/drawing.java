@@ -2,6 +2,7 @@ package caseybr.barkeras.com.drawing;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -41,6 +43,7 @@ public class drawing extends Activity {
     Color brushBoxColor = new Color();
     int opacitySeekValue;
     File imageFile;
+    Boolean firstPropmpt = false;
 
 
     @Override
@@ -50,17 +53,26 @@ public class drawing extends Activity {
         Bundle canvasInfo = getIntent().getExtras();
         int userRC = canvasInfo.getInt("requestCode");
         Bitmap canvasBM;
-        Button brushBtn = (Button)findViewById(R.id.brushBtn);
+        final Button brushBtn = (Button)findViewById(R.id.brushBtn);
         Button shareBtn = (Button)findViewById(R.id.shareImageBtn);
         Button saveBtn = (Button)findViewById(R.id.saveImageBtn);
+        final Button eraseBtn = (Button)findViewById(R.id.eraseImageBtn);
         ImageView canvasImage = (ImageView)findViewById(R.id.canvasImage);
+
+
         Typeface fontFamily = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
         brushBtn.setTypeface(fontFamily);
         shareBtn.setTypeface(fontFamily);
         saveBtn.setTypeface(fontFamily);
+        eraseBtn.setTypeface(fontFamily);
         brushBtn.setText("\uf1fc");
         shareBtn.setText("\uf1e0");
         saveBtn.setText("\uf0c7");
+        eraseBtn.setText("\uf12d");
+
+
+        selectedColorRGB[3] = brushBoxColor.argb(255,defaultR,defaultG,defaultB);
+        brushBtn.setTextColor(selectedColorRGB[3]);
 
 
 
@@ -100,10 +112,60 @@ public class drawing extends Activity {
         }
 
 
+        brushBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(drawing.this, "Brush activated", Toast.LENGTH_LONG).show();
+
+
+                int colorWhite = getResources().getColor(R.color.white);
+                int colorClear = getResources().getColor(R.color.clear);
+                int colorWhiteBack = getResources().getColor(R.color.white_half_opacity);
+                eraseBtn.setTextColor(colorWhite);
+                eraseBtn.setBackgroundColor(colorClear);
+                brushBtn.setBackgroundColor(colorWhiteBack);
+
+            }
+        });
+
+        brushBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                brushBtnHeld();
+
+                return false;
+            }
+        });
+
+
+        eraseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(drawing.this,"Eraser Activated",Toast.LENGTH_LONG).show();
+
+                int colorBlack = getResources().getColor(R.color.black);
+                int colorWhite = getResources().getColor(R.color.white);
+                int colorWhiteBack = getResources().getColor(R.color.white_half_opacity);
+                int colorBlackBack = getResources().getColor(R.color.black_half_opacity);
+                eraseBtn.setBackgroundColor(colorWhiteBack);
+                eraseBtn.setTextColor(colorBlack);
+                brushBtn.setBackgroundColor(colorBlackBack);
+
+
+            }
+        });
+
 
     }
 
-    public void brushBtnClicked(View view) {
+
+
+    public void brushBtnHeld() {
+
+
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
 
@@ -121,12 +183,22 @@ public class drawing extends Activity {
         final TextView opacityTextView = (TextView)promptView.findViewById(R.id.opacityValueTV);
         final Button brushBtn = (Button)findViewById(R.id.brushBtn);
 
-        selectedColorRGB[0] = defaultR;
-        selectedColorRGB[1] = defaultG;
-        selectedColorRGB[2] = defaultB;
+
+        if(firstPropmpt == false){
+
+            selectedColorRGB[0] = defaultR;
+            selectedColorRGB[1] = defaultG;
+            selectedColorRGB[2] = defaultB;
+
+        }
+        else{
 
 
-        selectedColorRGB[3] = brushBoxColor.rgb(defaultR,defaultG,defaultB);
+        }
+
+
+
+        selectedColorRGB[3] = brushBoxColor.rgb(selectedColorRGB[0],selectedColorRGB[1],selectedColorRGB[2]);
         brushColorView.setBackgroundColor(selectedColorRGB[3]);
 
         brushSize.setText(String.valueOf(brushSeekBar.getProgress()));
@@ -193,10 +265,22 @@ public class drawing extends Activity {
 //                alertColorPick.show();
 //                hideKeyboard();
 
-                final ColorPicker cp = new ColorPicker(drawing.this, defaultR, defaultG, defaultB);
+                final ColorPicker cp;
+
+                if(firstPropmpt == false){
+                    cp = new ColorPicker(drawing.this, defaultR, defaultG, defaultB);
+                }
+                else{
+                    cp = new ColorPicker(drawing.this, selectedColorRGB[0], selectedColorRGB[1], selectedColorRGB[2]);
+                }
+
 
                 /* Show color picker dialog */
                 cp.show();
+
+
+
+
 
     /* On Click listener for the dialog, when the user select the color */
                 Button okColor = (Button) cp.findViewById(R.id.okColorButton);
@@ -217,6 +301,7 @@ public class drawing extends Activity {
                         selectedColorRGB[3] = brushBoxColor.rgb(selectedColorRGB[0], selectedColorRGB[1], selectedColorRGB[2]);
                         //Toast.makeText(CanvasCaptureActivity.this, String.valueOf(selectedColorRGB), Toast.LENGTH_LONG).show();
                         brushColorView.setBackgroundColor(selectedColorRGB[3]);
+                        //brushBtn.setTextColor(selectedColorRGB[3]);
                     }
                 });
 
@@ -231,6 +316,8 @@ public class drawing extends Activity {
                     public void onClick(DialogInterface dialog, int id) {
                         // get user input and set it to result
                         brushBtn.setTextColor(selectedColorRGB[3]);
+                        hideKeyboard();
+                        brushBtn.callOnClick();
 
 
                     }
@@ -247,6 +334,7 @@ public class drawing extends Activity {
 
         alertD.show();
 
+        firstPropmpt = true;
 
     }
 
@@ -261,7 +349,7 @@ public class drawing extends Activity {
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + imageFile));
 
-        startActivity(Intent.createChooser(share,"Share Photo"));
+        startActivity(Intent.createChooser(share, "Share Photo"));
     }
 
 
@@ -301,6 +389,14 @@ public class drawing extends Activity {
             e.printStackTrace();
         }
 
+    }
+
+    public void hideKeyboard(){
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
 }
