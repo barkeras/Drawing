@@ -6,4 +6,5 @@
     <string name="blankCanvasBtnText">Blank Canvas</string>
     <string name="existingImageBtnText">Existing Image</string>
     <string name="previousCanvasText">Previous Canvas</string>
+    <string name="opacityTextView">Opacity</string>
 </resources>

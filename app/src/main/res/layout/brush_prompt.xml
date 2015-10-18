@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/blankCanvasPrompt"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/promptBrushSizeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Size:"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_weight="1.9"/>
+
+
+        <EditText
+            android:id="@+id/promptBrushPixels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:selectAllOnFocus="true"
+            android:gravity="center"
+            android:editable="false">
+
+            <requestFocus />
+
+        </EditText>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+
+
+
+
+
+    </LinearLayout>
+
+    <SeekBar
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/brushSeek"
+        android:max="600"
+        android:progress="100"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/promptBrushTextView"
+            android:text="Brush Color"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_centerVertical="true"
+            android:layout_weight="1.25"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/promptBrushColorBox"
+            android:layout_weight="1"
+            android:layout_centerVertical="true"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="15dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/opacityTextView"
+            android:text="@string/opacityTextView"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="italic"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/opacityValueTV"
+            android:paddingTop="15dp"
+            android:paddingRight="15dp"
+            android:gravity="right"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="italic"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/opacitySeekBar"
+        android:paddingTop="10dp"
+        android:max="255"
+        android:progress="255"/>
+
+
+
+</LinearLayout>
