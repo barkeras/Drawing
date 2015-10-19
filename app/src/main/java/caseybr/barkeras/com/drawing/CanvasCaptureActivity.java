@@ -66,46 +66,42 @@ public class CanvasCaptureActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void blankCanvasClicked(View view) {
-// get prompts.xml view
-        LayoutInflater layoutInflater = LayoutInflater.from(this);
 
+    //Runs when user clicks the new canvas button
+    public void blankCanvasClicked(View view) {
+
+        //gets the blank_canvas prompt_xml to be displayed in alert dialog
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
         View promptView = layoutInflater.inflate(R.layout.blank_canvas_prompt, null);
 
+        //creates the alertDialog and tells it to launch in the CanvasCaptureActivity context
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CanvasCaptureActivity.this);
 
-        // set prompts.xml to be the layout file of the alertdialog builder
+        // set blank_canvas_prompt.xml to be the layout file of the alertdialog builder
         alertDialogBuilder.setView(promptView);
 
         final EditText widthInput = (EditText) promptView.findViewById(R.id.promptWidthInput);
         final EditText heightInput = (EditText) promptView.findViewById(R.id.promptHeightInput);
         final View backgroundColorView = (View)promptView.findViewById(R.id.promptBackgroundColorBox);
 
+
+        //sets each portion of the selectedColorArray to the according default RGB value so when alert displays the box that
+        // shows the color is default to white
         selectedColorRGB[0] = defaultR;
         selectedColorRGB[1] = defaultG;
         selectedColorRGB[2] = defaultB;
 
-
+        //gets the integer color value of the rgb colors and saves into array element and sets the view color to reflect the color
         selectedColorRGB[3] = backGroundBoxColor.rgb(defaultR,defaultG,defaultB);
         backgroundColorView.setBackgroundColor(selectedColorRGB[3]);
 
 
+        //when the color view is clicked this runs
         backgroundColorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-//                Toast.makeText(getApplicationContext(), "Background box clicked!", Toast.LENGTH_LONG).show();
-//                LayoutInflater colorInflater = LayoutInflater.from(getApplicationContext());
-//                View colorPrompt =colorInflater.inflate(R.layout.color_picker_layout, null);
-//                AlertDialog.Builder alertColorPickDialog = new AlertDialog.Builder(CanvasCaptureActivity.this);
-//
-//                alertColorPickDialog.setView(colorPrompt);
-//
-//                AlertDialog alertColorPick = alertColorPickDialog.create();
-//
-//                alertColorPick.show();
-//                hideKeyboard();
-
+                //uses color picker library to create the color picker pop up with the default RGB values to show white
                 final ColorPicker cp = new ColorPicker(CanvasCaptureActivity.this,defaultR,defaultG,defaultB);
 
                 /* Show color picker dialog */
@@ -117,18 +113,16 @@ public class CanvasCaptureActivity extends Activity {
                     @Override
                     public void onClick(View v) {
 
-                /* You can get single channel (value 0-255) */
+                        //gets the int value of R,G,and B the user selects and saves into array
                         selectedColorRGB[0] = cp.getRed();
                         selectedColorRGB[1] = cp.getGreen();
                         selectedColorRGB[2] = cp.getBlue();
 
-                /* Or the android RGB Color (see the android Color class reference) */
-                        //selectedColorRGB[0] = cp.getColor();
-
+                        //closes the color picker pop up
                         cp.dismiss();
 
+                        //saves the exact color integer from RGB values into array and sets view background color to reflect users decision
                         selectedColorRGB[3] = backGroundBoxColor.rgb(selectedColorRGB[0],selectedColorRGB[1],selectedColorRGB[2]);
-                        //Toast.makeText(CanvasCaptureActivity.this, String.valueOf(selectedColorRGB), Toast.LENGTH_LONG).show();
                         backgroundColorView.setBackgroundColor(selectedColorRGB[3]);
                     }
                 });
@@ -142,10 +136,15 @@ public class CanvasCaptureActivity extends Activity {
                 .setTitle("New Canvas")
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // get user input and set it to result
+
+                        // creates new intent to go from CanvasCaptureActivity to the drawing activity
                         Intent canvasIntent = new Intent(CanvasCaptureActivity.this,drawing.class);
+
+                        //gets the width and height input from the editTexts for how big user wants to make new canvas
                         String widthPx = widthInput.getText().toString();
                         String heightPx = heightInput.getText().toString();
+
+                        //pass the color values, canvas height and width, and the request code to next activity and start drawing activity
                         canvasIntent.putExtra("redValue", selectedColorRGB[0]);
                         canvasIntent.putExtra("greenValue", selectedColorRGB[1]);
                         canvasIntent.putExtra("blueValue", selectedColorRGB[2]);
@@ -163,12 +162,14 @@ public class CanvasCaptureActivity extends Activity {
                             }
                         });
 
-        // create an alert dialog
+        // creates the new canvas dialog
         AlertDialog alertD = alertDialogBuilder.create();
-
+        //shows the new canvas dialog
         alertD.show();
     }
 
+
+    //runs when existing image button is clicked
     public void existingImageClicked(View view) {
 
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -192,16 +193,24 @@ public class CanvasCaptureActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode ==RESULT_OK){
+        //code within will run as long as user does not cancel their action
+        if(resultCode == RESULT_OK){
 
+            //code will run if the user chooses existing image button to launch the gallery intent
             if(requestCode == IMAGE_GALLERY_REQUEST){
+                //creates new intent to go from CanvasCaptureActivity to the drawing activity
                 Intent drawingIntent = new Intent(CanvasCaptureActivity.this, drawing.class);
+
+                //saves the image the user selects as a uri
                 fileUri = data.getData();
+
+                //pass the uri and request code to the next activity and start next activity
                 drawingIntent.putExtra("fileUri",fileUri.toString());
                 drawingIntent.putExtra("requestCode",IMAGE_GALLERY_REQUEST);
                 startActivityForResult(drawingIntent,DRAWING_ACTIVITY_REQUEST);
 
             }
+            //this runs and should pull the last image the user worked on into imageView under previous canvas on the launcher screen
             if(requestCode == DRAWING_ACTIVITY_REQUEST){
 
 
