@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,7 +18,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,15 +39,16 @@ import java.util.Date;
  */
 public class drawing extends Activity {
 
-    int defaultR = 255;
-    int defaultB = 255;
-    int defaultG = 255;
+    int defaultR = 0;
+    int defaultB = 0;
+    int defaultG = 0;
     int[] selectedColorRGB = new int[4];
+    int[] canvasColor =  new int[4];
     Color brushBoxColor = new Color();
     int opacitySeekValue;
     File imageFile;
     Boolean firstPropmpt = false;
-
+    DrawView theDrawView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,18 @@ public class drawing extends Activity {
         Button shareBtn = (Button)findViewById(R.id.shareImageBtn);
         Button saveBtn = (Button)findViewById(R.id.saveImageBtn);
         final Button eraseBtn = (Button)findViewById(R.id.eraseImageBtn);
-        ImageView canvasImage = (ImageView)findViewById(R.id.canvasImage);
+        //ImageView canvasImage = (ImageView)findViewById(R.id.canvasImage);
+
+
+
+        theDrawView = new DrawView(this);
+
+        FrameLayout layout = (FrameLayout) findViewById(R.id.frame_layout);
+        layout.addView(theDrawView, 0);
+
+
+
+
 
         //uses the fontawesome font to set the button texts to icons
         Typeface fontFamily = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
@@ -70,7 +85,7 @@ public class drawing extends Activity {
         saveBtn.setText("\uf0c7");
         eraseBtn.setText("\uf12d");
 
-        //sets the brush icon color to the default color of white
+        //sets the brush icon color to the default color of black
         selectedColorRGB[3] = brushBoxColor.argb(255,defaultR,defaultG,defaultB);
         brushBtn.setTextColor(selectedColorRGB[3]);
 
@@ -81,21 +96,23 @@ public class drawing extends Activity {
             //gets the width, height, and color values passed in from the CanvasCaptureActivity
             int canvasWidth = Integer.parseInt(canvasInfo.getString("width"));
             int canvasHeight = Integer.parseInt(canvasInfo.getString("height"));
-            int[] canvasColor =  new int[4];
+
             canvasColor[0] = canvasInfo.getInt("redValue");
             canvasColor[1] = canvasInfo.getInt("greenValue");
             canvasColor[2] = canvasInfo.getInt("blueValue");
 
             //sets canvasColor to the final int of the RGB color user picked when creating canvas
             Color canvasBmColor = new Color();
-            canvasColor[3] = canvasBmColor.rgb(canvasColor[0],canvasColor[1],canvasColor[2]);
+            canvasColor[3] = canvasBmColor.rgb(canvasColor[0], canvasColor[1], canvasColor[2]);
 
             //creates the Bitmap of the width and height the user selected when creating canvas in CanvasCaptureActivity
             canvasBM = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888);
 
             //sets the canvas to the color the user choose in CanvasCaptureActivity and then sets bitmap as imageView
             canvasBM.eraseColor(canvasColor[3]);
-            canvasImage.setImageBitmap(canvasBM);
+            //theDrawView.changeCanvasSize();
+           // canvasImage.setImageBitmap(canvasBM);
+            theDrawView.setBackgroundColor(canvasColor[3]);
 
         }
         //runs if user chose an existing image following code runs
@@ -110,7 +127,10 @@ public class drawing extends Activity {
             try {
                 imgStream = getContentResolver().openInputStream(imageUri);
                 canvasBM = BitmapFactory.decodeStream(imgStream);
-                canvasImage.setImageBitmap(canvasBM);
+                //canvasImage.setImageBitmap(canvasBM);
+                //theDrawView.changeBitmap(canvasBM);
+                //theDrawView.setBackground(new BitmapDrawable(canvasBM));
+
 
             }
             catch (FileNotFoundException e) {
@@ -136,6 +156,7 @@ public class drawing extends Activity {
                 eraseBtn.setTextColor(colorWhite);
                 eraseBtn.setBackgroundColor(colorClear);
                 brushBtn.setBackgroundColor(colorWhiteBack);
+                theDrawView.setColor(selectedColorRGB[3]);
 
             }
         });
@@ -168,6 +189,7 @@ public class drawing extends Activity {
                 eraseBtn.setBackgroundColor(colorWhiteBack);
                 eraseBtn.setTextColor(colorBlack);
                 brushBtn.setBackgroundColor(colorBlackBack);
+                theDrawView.setColor(canvasColor[3]);
 
 
             }
@@ -218,6 +240,7 @@ public class drawing extends Activity {
 
         //sets the brush size editText to the value of the seekBar
         brushSize.setText(String.valueOf(brushSeekBar.getProgress()));
+        theDrawView.changeStrokeWidth(brushSeekBar.getProgress());
 
 
         //this listens for interaction with the seek bar that adjusts the brush size
@@ -226,6 +249,7 @@ public class drawing extends Activity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 //while the user is changing the bar set the new value to the editText
                 brushSize.setText(String.valueOf(progress));
+                theDrawView.changeStrokeWidth(progress);
             }
 
             @Override
@@ -405,9 +429,13 @@ public class drawing extends Activity {
     public void saveImage(){
 
         // get the image from the imageview to save as bitmap
-        ImageView canvas = (ImageView)findViewById(R.id.canvasImage);
-        canvas.setDrawingCacheEnabled(true);
-        Bitmap canvasBM = canvas.getDrawingCache();
+        //ImageView canvas = (ImageView)findViewById(R.id.canvasImage);
+        //canvas.setDrawingCacheEnabled(true);
+        //Bitmap canvasBM = canvas.getDrawingCache();
+
+        theDrawView.setDrawingCacheEnabled(true);
+        Bitmap canvasBM = theDrawView.getDrawingCache();
+
 
         //create the new file with following filePath
         String root = Environment.getExternalStorageDirectory().toString();
